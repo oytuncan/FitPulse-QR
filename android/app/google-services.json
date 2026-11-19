@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "743056412787",
+    "project_id": "fitpulse-qr-16976",
+    "storage_bucket": "fitpulse-qr-16976.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:743056412787:android:8d0981a11b2645d9c31a06",
+        "android_client_info": {
+          "package_name": "com.fitpulse.fitpulse_qr"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAwoj4g4JHRL7fYZ2C4og5lBO56Gk6A1is"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
