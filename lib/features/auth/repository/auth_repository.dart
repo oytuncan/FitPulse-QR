@@ -5,6 +5,9 @@ class AuthRepository {
 
   Stream<User?> get authState => _auth.authStateChanges();
 
+  /// Giriş yapmış kullanıcının uid'si; giriş yoksa null.
+  String? get currentUserId => _auth.currentUser?.uid;
+
   Future<void> signIn(String email, String password) {
     return _auth.signInWithEmailAndPassword(email: email, password: password);
   }
