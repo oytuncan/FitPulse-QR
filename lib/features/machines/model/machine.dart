@@ -17,8 +17,11 @@ class Machine {
     final id = text.substring(_qrPrefix.length);
     if (!_validId.hasMatch(id)) return null;
 
-    return Machine(id: id, name: _nameFromId(id));
+    return Machine.fromId(id);
   }
+
+  /// Kayıtlı makine id'sinden makine oluşturur (adı id'den üretilir).
+  factory Machine.fromId(String id) => Machine(id: id, name: _nameFromId(id));
 
   /// "bench-press" -> "Bench Press"
   static String _nameFromId(String id) {

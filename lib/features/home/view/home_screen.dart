@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/stat_card.dart';
+import '../../machines/view/personal_records_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -10,26 +11,33 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Ana Sayfa')),
-      // Şimdilik sahte veriler; ileride gerçek veriyle değiştirilecek.
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.md),
-        children: const [
-          StatCard(
+        children: [
+          // Şimdilik sahte veriler; ileride gerçek veriyle değiştirilecek.
+          const StatCard(
             icon: Icons.groups,
             title: 'Salon Doluluğu',
             value: '%45',
           ),
-          SizedBox(height: AppSpacing.md),
-          StatCard(
+          const SizedBox(height: AppSpacing.md),
+          const StatCard(
             icon: Icons.flag,
             title: 'Haftalık Hedef',
             value: '2/4 gün',
           ),
-          SizedBox(height: AppSpacing.md),
-          StatCard(
+          const SizedBox(height: AppSpacing.md),
+          const StatCard(
             icon: Icons.stars,
             title: 'Puanım',
             value: '120',
+          ),
+          const SizedBox(height: AppSpacing.md),
+          StatCard(
+            icon: Icons.emoji_events,
+            title: 'Makinelerdeki en yüksek kilolarım',
+            value: 'Rekorlarım',
+            onTap: () => PersonalRecordsScreen.open(context),
           ),
         ],
       ),
