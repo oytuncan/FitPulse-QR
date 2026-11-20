@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/stat_card.dart';
 import '../../machines/view/personal_records_screen.dart';
+import '../../nutrition/viewmodel/nutrition_viewmodel.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, required this.onOpenNutrition});
+
+  /// Beslenme sekmesine geçiş (MainShell sağlar).
+  final VoidCallback onOpenNutrition;
 
   @override
   Widget build(BuildContext context) {
+    final nutrition = context.watch<NutritionViewModel>();
+    final calories = nutrition.profile?.result.calories;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Ana Sayfa')),
       body: ListView(
@@ -31,6 +39,18 @@ class HomeScreen extends StatelessWidget {
             icon: Icons.stars,
             title: 'Puanım',
             value: '120',
+          ),
+          const SizedBox(height: AppSpacing.md),
+          // Beslenme profili varsa günlük kalori, yoksa yönlendirme.
+          StatCard(
+            icon: Icons.restaurant,
+            title: 'Günlük hedefim',
+            value: nutrition.isLoading
+                ? '...'
+                : calories == null
+                    ? 'Beslenme hedefini belirle'
+                    : '$calories kcal',
+            onTap: onOpenNutrition,
           ),
           const SizedBox(height: AppSpacing.md),
           StatCard(

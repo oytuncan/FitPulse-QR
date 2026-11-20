@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../features/auth/viewmodel/auth_viewmodel.dart';
 import '../../features/home/view/home_screen.dart';
+import '../../features/nutrition/repository/nutrition_repository.dart';
+import '../../features/nutrition/viewmodel/nutrition_viewmodel.dart';
 import '../../features/machines/view/machine_scan_screen.dart';
 import '../../features/nutrition/view/nutrition_screen.dart';
 import '../../features/profile/view/profile_screen.dart';
@@ -18,12 +22,15 @@ class _MainShellState extends State<MainShell> {
   int _index = 0;
 
   static const _scanTab = 1;
+  static const _nutritionTab = 2;
 
   @override
   Widget build(BuildContext context) {
     // Sıra, aşağıdaki NavigationBar sekmeleriyle aynı olmalı.
     final screens = [
-      const HomeScreen(),
+      HomeScreen(
+        onOpenNutrition: () => setState(() => _index = _nutritionTab),
+      ),
       // Tara ekranı yalnızca sekme seçiliyken oluşturulur; böylece kamera
       // arka planda çalışmaz ve sekmeden çıkınca kapanır.
       _index == _scanTab ? const MachineScanScreen() : const SizedBox.shrink(),
@@ -32,6 +39,18 @@ class _MainShellState extends State<MainShell> {
       const ProfileScreen(),
     ];
 
+    // Beslenme durumu burada sağlanır: Ana Sayfa kartı ve Beslenme sekmesi
+    // aynı veriyi görür. Oturum kapanınca MainShell ile birlikte kapanır.
+    return ChangeNotifierProvider(
+      create: (context) => NutritionViewModel(
+        repository: context.read<NutritionRepository>(),
+        userId: context.read<AuthViewModel>().currentUserId!,
+      )..load(),
+      child: _buildScaffold(screens),
+    );
+  }
+
+  Widget _buildScaffold(List<Widget> screens) {
     return Scaffold(
       // IndexedStack: sekme değişince ekranların durumu korunur.
       body: IndexedStack(index: _index, children: screens),

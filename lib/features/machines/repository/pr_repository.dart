@@ -83,6 +83,4 @@ class PrRepository {
     }
     return records.values.toList();
   }
-
-  Future<void> close() => _db.close();
 }

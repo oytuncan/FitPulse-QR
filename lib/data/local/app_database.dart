@@ -18,12 +18,48 @@ class PrRecords extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-@DriftDatabase(tables: [PrRecords])
+/// Kullanıcının beslenme profili ve hesaplanan günlük hedefleri.
+/// Her kullanıcı için tek satır tutulur (userId benzersiz).
+@DataClassName('NutritionProfileRow')
+class NutritionProfiles extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get userId => text().unique()();
+
+  // Enum'lar adlarıyla saklanır: 'male', 'moderate', 'lose' gibi.
+  TextColumn get gender => text()();
+  IntColumn get age => integer()();
+  RealColumn get heightCm => real()();
+  RealColumn get weightKg => real()();
+  TextColumn get activityLevel => text()();
+  TextColumn get goal => text()();
+
+  IntColumn get calories => integer()();
+  IntColumn get proteinG => integer()();
+  IntColumn get carbsG => integer()();
+  IntColumn get fatG => integer()();
+  DateTimeColumn get updatedAt => dateTime()();
+}
+
+@DriftDatabase(tables: [PrRecords, NutritionProfiles])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
+  // 1: PrRecords
+  // 2: NutritionProfiles eklendi
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) => m.createAll(),
+        onUpgrade: (m, from, to) async {
+          // Eski sürümden gelen cihazlarda sadece yeni tablo oluşturulur;
+          // mevcut PR kayıtlarına dokunulmaz.
+          if (from < 2) {
+            await m.createTable(nutritionProfiles);
+          }
+        },
+      );
 }
 
 /// Veritabanı uygulamanın belgeler klasöründe bir dosyada tutulur;

@@ -5,10 +5,11 @@ import 'package:provider/provider.dart';
 
 import 'core/navigation/main_shell.dart';
 import 'core/theme/app_theme.dart';
-import 'features/auth/view/login_screen.dart';
 import 'data/local/app_database.dart';
+import 'features/auth/view/login_screen.dart';
 import 'features/auth/viewmodel/auth_viewmodel.dart';
 import 'features/machines/repository/pr_repository.dart';
+import 'features/nutrition/repository/nutrition_repository.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -26,9 +27,16 @@ class FitPulseApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
         // Tek yerel veritabanı bağlantısı; uygulama kapanınca kapatılır.
+        // Ekranlar veritabanını değil, aşağıdaki repository'leri kullanır.
+        Provider<AppDatabase>(
+          create: (_) => AppDatabase(),
+          dispose: (_, db) => db.close(),
+        ),
         Provider<PrRepository>(
-          create: (_) => PrRepository(AppDatabase()),
-          dispose: (_, repo) => repo.close(),
+          create: (context) => PrRepository(context.read<AppDatabase>()),
+        ),
+        Provider<NutritionRepository>(
+          create: (context) => NutritionRepository(context.read<AppDatabase>()),
         ),
       ],
       child: Consumer<AuthViewModel>(
