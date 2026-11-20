@@ -3,9 +3,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'core/navigation/main_shell.dart';
+import 'core/theme/app_theme.dart';
 import 'features/auth/view/login_screen.dart';
 import 'features/auth/viewmodel/auth_viewmodel.dart';
-import 'features/home/view/home_screen.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -25,10 +26,7 @@ class FitPulseApp extends StatelessWidget {
         builder: (context, vm, _) => MaterialApp(
           title: 'FitPulse QR',
           debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
-            useMaterial3: true,
-          ),
+          theme: AppTheme.dark,
           home: StreamBuilder<User?>(
             stream: vm.authState,
             builder: (context, snapshot) {
@@ -36,7 +34,7 @@ class FitPulseApp extends StatelessWidget {
                 return const Scaffold(
                     body: Center(child: CircularProgressIndicator()));
               }
-              return snapshot.hasData ? const HomeScreen() : const LoginScreen();
+              return snapshot.hasData ? const MainShell() : const LoginScreen();
             },
           ),
         ),
