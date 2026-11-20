@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Makine QR kodlarını okumak için kamera izni -->
+    <uses-permission android:name="android.permission.CAMERA"/>
     <application
         android:label="fitpulse_qr"
         android:name="${applicationName}"

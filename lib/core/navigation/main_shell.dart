@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../features/home/view/home_screen.dart';
+import '../../features/machines/view/machine_scan_screen.dart';
 import '../../features/nutrition/view/nutrition_screen.dart';
 import '../../features/profile/view/profile_screen.dart';
 import '../../features/rewards/view/rewards_screen.dart';
-import '../../features/scan/view/scan_screen.dart';
 
 /// Giriş yapılmış kullanıcının ana iskeleti: alt gezinme çubuğu + 5 sekme.
 class MainShell extends StatefulWidget {
@@ -17,20 +17,24 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _index = 0;
 
-  // Sıra, aşağıdaki NavigationBar sekmeleriyle aynı olmalı.
-  static const _screens = [
-    HomeScreen(),
-    ScanScreen(),
-    NutritionScreen(),
-    RewardsScreen(),
-    ProfileScreen(),
-  ];
+  static const _scanTab = 1;
 
   @override
   Widget build(BuildContext context) {
+    // Sıra, aşağıdaki NavigationBar sekmeleriyle aynı olmalı.
+    final screens = [
+      const HomeScreen(),
+      // Tara ekranı yalnızca sekme seçiliyken oluşturulur; böylece kamera
+      // arka planda çalışmaz ve sekmeden çıkınca kapanır.
+      _index == _scanTab ? const MachineScanScreen() : const SizedBox.shrink(),
+      const NutritionScreen(),
+      const RewardsScreen(),
+      const ProfileScreen(),
+    ];
+
     return Scaffold(
       // IndexedStack: sekme değişince ekranların durumu korunur.
-      body: IndexedStack(index: _index, children: _screens),
+      body: IndexedStack(index: _index, children: screens),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
