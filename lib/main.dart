@@ -6,7 +6,9 @@ import 'package:provider/provider.dart';
 import 'core/navigation/main_shell.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/view/login_screen.dart';
+import 'data/local/app_database.dart';
 import 'features/auth/viewmodel/auth_viewmodel.dart';
+import 'features/machines/repository/pr_repository.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -20,8 +22,15 @@ class FitPulseApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AuthViewModel(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthViewModel()),
+        // Tek yerel veritabanı bağlantısı; uygulama kapanınca kapatılır.
+        Provider<PrRepository>(
+          create: (_) => PrRepository(AppDatabase()),
+          dispose: (_, repo) => repo.close(),
+        ),
+      ],
       child: Consumer<AuthViewModel>(
         builder: (context, vm, _) => MaterialApp(
           title: 'FitPulse QR',

@@ -10,6 +10,8 @@ class AuthViewModel extends ChangeNotifier {
 
   Stream<User?> get authState => _repo.authState;
 
+  String? get currentUserId => _repo.currentUserId;
+
   Future<void> submit({
     required String email,
     required String password,
