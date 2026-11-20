@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../auth/viewmodel/auth_viewmodel.dart';
+import '../../machines/view/personal_records_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -22,6 +23,14 @@ class ProfileScreen extends StatelessWidget {
             Text(
               user?.email ?? '',
               style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.emoji_events),
+              title: const Text('Rekorlarım'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => PersonalRecordsScreen.open(context),
             ),
             const Spacer(),
             // Çıkış yapınca main.dart'taki StreamBuilder giriş ekranına döner.
