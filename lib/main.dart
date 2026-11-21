@@ -8,6 +8,7 @@ import 'core/theme/app_theme.dart';
 import 'data/local/app_database.dart';
 import 'features/auth/view/login_screen.dart';
 import 'features/auth/viewmodel/auth_viewmodel.dart';
+import 'features/gate_entry/repository/gate_repository.dart';
 import 'features/machines/repository/pr_repository.dart';
 import 'features/nutrition/repository/nutrition_repository.dart';
 import 'firebase_options.dart';
@@ -38,6 +39,8 @@ class FitPulseApp extends StatelessWidget {
         Provider<NutritionRepository>(
           create: (context) => NutritionRepository(context.read<AppDatabase>()),
         ),
+        // Turnike girişleri ve salon doluluğu (Firestore, çevrimiçi).
+        Provider<GateRepository>(create: (_) => GateRepository()),
       ],
       child: Consumer<AuthViewModel>(
         builder: (context, vm, _) => MaterialApp(
