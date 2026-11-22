@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../rewards/repository/rewards_repository.dart';
 import '../model/gate_result.dart';
 import '../model/gym_occupancy.dart';
 
@@ -8,11 +9,15 @@ import '../model/gym_occupancy.dart';
 /// Koleksiyonlar:
 /// - `gyms/<gymId>`: name, capacity, activeCount
 /// - `entries/<otomatik id>`: userId, gymId, enteredAt, exitedAt
+/// Giriş puanı (`users/{uid}`) [RewardsRepository] üzerinden aynı
+/// transaction'da yazılır.
 class GateRepository {
-  GateRepository({FirebaseFirestore? firestore})
-    : _db = firestore ?? FirebaseFirestore.instance;
+  GateRepository({FirebaseFirestore? firestore, RewardsRepository? rewards})
+    : _db = firestore ?? FirebaseFirestore.instance,
+      _rewards = rewards ?? RewardsRepository(firestore: firestore);
 
   final FirebaseFirestore _db;
+  final RewardsRepository _rewards;
 
   DocumentReference<Map<String, dynamic>> _gym(String gymId) =>
       _db.collection('gyms').doc(gymId);
@@ -37,7 +42,7 @@ class GateRepository {
   }
 
   /// Kullanıcının açık girişi yoksa giriş, varsa çıkış yapar.
-  Future<GateResult> toggleEntry({
+  Future<GateOutcome> toggleEntry({
     required String userId,
     required String gymId,
   }) async {
@@ -51,18 +56,29 @@ class GateRepository {
         .get(const GetOptions(source: Source.server));
 
     if (open.docs.isEmpty) return _enter(userId: userId, gymId: gymId);
-    return _exit(gymId: gymId, entryRef: open.docs.first.reference);
+    final result = await _exit(
+      gymId: gymId,
+      entryRef: open.docs.first.reference,
+    );
+    return (result: result, pointsEarned: 0);
   }
 
-  Future<GateResult> _enter({required String userId, required String gymId}) {
+  Future<GateOutcome> _enter({required String userId, required String gymId}) {
     final gymRef = _gym(gymId);
 
     return _db.runTransaction((tx) async {
+      // Transaction'da önce tüm okumalar, sonra yazmalar yapılmalı.
       final occupancy = GymOccupancy.tryParse((await tx.get(gymRef)).data());
-      if (occupancy == null) return GateResult.gymNotFound;
+      final stats = await _rewards.readUserInTransaction(tx, userId);
+
+      if (occupancy == null) {
+        return (result: GateResult.gymNotFound, pointsEarned: 0);
+      }
       // Kapasite transaction içinde kontrol edilir; aynı anda gelen girişler
       // sınırı aşamaz.
-      if (occupancy.isFull) return GateResult.gymFull;
+      if (occupancy.isFull) {
+        return (result: GateResult.gymFull, pointsEarned: 0);
+      }
 
       tx.set(_entries.doc(), {
         'userId': userId,
@@ -71,7 +87,14 @@ class GateRepository {
         'exitedAt': null,
       });
       tx.update(gymRef, {'activeCount': occupancy.activeCount + 1});
-      return GateResult.entered;
+      // Günün ilk girişiyse puan (ve hedef günüyse bonus) aynı transaction'da.
+      final points = _rewards.applyVisitReward(
+        tx,
+        userId,
+        stats,
+        DateTime.now(),
+      );
+      return (result: GateResult.entered, pointsEarned: points);
     });
   }
 

@@ -10,7 +10,9 @@ import '../../features/nutrition/viewmodel/nutrition_viewmodel.dart';
 import '../../features/machines/view/machine_scan_screen.dart';
 import '../../features/nutrition/view/nutrition_screen.dart';
 import '../../features/profile/view/profile_screen.dart';
+import '../../features/rewards/repository/rewards_repository.dart';
 import '../../features/rewards/view/rewards_screen.dart';
+import '../../features/rewards/viewmodel/user_stats_viewmodel.dart';
 
 /// Giriş yapılmış kullanıcının ana iskeleti: alt gezinme çubuğu + 5 sekme.
 class MainShell extends StatefulWidget {
@@ -39,9 +41,9 @@ class _MainShellState extends State<MainShell> {
       const ProfileScreen(),
     ];
 
-    // Beslenme ve doluluk durumu burada sağlanır: Ana Sayfa kartları ve
+    // Beslenme, doluluk ve puan durumu burada sağlanır: Ana Sayfa kartları ve
     // sekmeler aynı veriyi görür. Oturum kapanınca MainShell ile birlikte
-    // kapanır (doluluk dinlemesi de durur).
+    // kapanır (canlı dinlemeler de durur).
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -53,6 +55,12 @@ class _MainShellState extends State<MainShell> {
         ChangeNotifierProvider(
           create: (context) =>
               GymOccupancyViewModel(repository: context.read<GateRepository>()),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => UserStatsViewModel(
+            repository: context.read<RewardsRepository>(),
+            userId: context.read<AuthViewModel>().currentUserId!,
+          ),
         ),
       ],
       child: _buildScaffold(screens),

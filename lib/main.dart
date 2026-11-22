@@ -11,6 +11,7 @@ import 'features/auth/viewmodel/auth_viewmodel.dart';
 import 'features/gate_entry/repository/gate_repository.dart';
 import 'features/machines/repository/pr_repository.dart';
 import 'features/nutrition/repository/nutrition_repository.dart';
+import 'features/rewards/repository/rewards_repository.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -39,8 +40,14 @@ class FitPulseApp extends StatelessWidget {
         Provider<NutritionRepository>(
           create: (context) => NutritionRepository(context.read<AppDatabase>()),
         ),
+        // Puan, haftalık hedef ve mağaza (Firestore).
+        Provider<RewardsRepository>(create: (_) => RewardsRepository()),
         // Turnike girişleri ve salon doluluğu (Firestore, çevrimiçi).
-        Provider<GateRepository>(create: (_) => GateRepository()),
+        // Giriş puanı aynı transaction'da RewardsRepository ile yazılır.
+        Provider<GateRepository>(
+          create: (context) =>
+              GateRepository(rewards: context.read<RewardsRepository>()),
+        ),
       ],
       child: Consumer<AuthViewModel>(
         builder: (context, vm, _) => MaterialApp(

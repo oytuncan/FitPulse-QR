@@ -1,8 +1,9 @@
 import 'package:flutter/foundation.dart';
 
+import '../../../core/utils/firestore_error_message.dart';
+import '../../rewards/model/points_rules.dart';
 import '../model/gate_result.dart';
 import '../repository/gate_repository.dart';
-import 'firestore_error_message.dart';
 
 /// Turnike okumasından sonra kullanıcıya gösterilecek mesaj.
 typedef GateMessage = ({String text, bool isError});
@@ -34,10 +35,13 @@ class GateEntryViewModel extends ChangeNotifier {
     isProcessing = true;
     notifyListeners();
     try {
-      final result = await _repo.toggleEntry(userId: userId, gymId: gymId);
-      return _messageFor(result);
+      final outcome = await _repo.toggleEntry(userId: userId, gymId: gymId);
+      return _messageFor(outcome);
     } catch (e) {
-      return (text: firestoreErrorMessage(e), isError: true);
+      return (
+        text: firestoreErrorMessage(e, notFound: 'Salon bilgisi bulunamadı.'),
+        isError: true,
+      );
     } finally {
       // Bekleme süresi işlem bittikten sonra başlar.
       _lastGymId = gymId;
@@ -47,9 +51,19 @@ class GateEntryViewModel extends ChangeNotifier {
     }
   }
 
-  GateMessage _messageFor(GateResult result) {
-    switch (result) {
+  GateMessage _messageFor(GateOutcome outcome) {
+    final points = outcome.pointsEarned;
+    switch (outcome.result) {
       case GateResult.entered:
+        if (points > dailyVisitPoints) {
+          return (
+            text: 'Giriş yapıldı. Haftalık hedefine ulaştın, +$points puan!',
+            isError: false,
+          );
+        }
+        if (points > 0) {
+          return (text: 'Giriş yapıldı. +$points puan!', isError: false);
+        }
         return (text: 'Giriş yapıldı. İyi antrenmanlar!', isError: false);
       case GateResult.exited:
         return (text: 'Çıkış yapıldı. Görüşmek üzere!', isError: false);

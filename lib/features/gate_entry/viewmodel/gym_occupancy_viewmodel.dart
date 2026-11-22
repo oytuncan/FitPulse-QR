@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import '../../../core/utils/firestore_error_message.dart';
 import '../model/gym_occupancy.dart';
 import '../repository/gate_repository.dart';
-import 'firestore_error_message.dart';
 
 /// Ana Sayfa'daki "Salon Doluluğu" kartının canlı durumu.
 class GymOccupancyViewModel extends ChangeNotifier {
@@ -22,7 +22,10 @@ class GymOccupancyViewModel extends ChangeNotifier {
           },
           // Hata akışı kapatmaz; bağlantı gelince yeni veriyle düzelir.
           onError: (Object e) {
-            errorMessage = firestoreErrorMessage(e);
+            errorMessage = firestoreErrorMessage(
+              e,
+              notFound: 'Salon bilgisi bulunamadı.',
+            );
             notifyListeners();
           },
         );

@@ -6,6 +6,7 @@ import '../../../core/widgets/stat_card.dart';
 import '../../gate_entry/view/gym_occupancy_card.dart';
 import '../../machines/view/personal_records_screen.dart';
 import '../../nutrition/viewmodel/nutrition_viewmodel.dart';
+import '../../rewards/viewmodel/user_stats_viewmodel.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, required this.onOpenNutrition});
@@ -16,6 +17,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final nutrition = context.watch<NutritionViewModel>();
+    final stats = context.watch<UserStatsViewModel>();
     final calories = nutrition.profile?.result.calories;
 
     return Scaffold(
@@ -26,17 +28,21 @@ class HomeScreen extends StatelessWidget {
           // Firestore'dan canlı doluluk.
           const GymOccupancyCard(),
           const SizedBox(height: AppSpacing.md),
-          // Şimdilik sahte veriler; ileride gerçek veriyle değiştirilecek.
-          const StatCard(
+          // users/{uid} belgesinden canlı; belge yoksa 0 puan, 0 gün.
+          StatCard(
             icon: Icons.flag,
             title: 'Haftalık Hedef',
-            value: '2/4 gün',
+            value: '${stats.daysThisWeek}/${stats.weeklyGoalDays} gün',
+            subtitle: stats.errorMessage,
+            isLoading: stats.isLoading,
           ),
           const SizedBox(height: AppSpacing.md),
-          const StatCard(
+          StatCard(
             icon: Icons.stars,
             title: 'Puanım',
-            value: '120',
+            value: '${stats.points}',
+            subtitle: stats.errorMessage,
+            isLoading: stats.isLoading,
           ),
           const SizedBox(height: AppSpacing.md),
           // Beslenme profili varsa günlük kalori, yoksa yönlendirme.

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../auth/viewmodel/auth_viewmodel.dart';
 import '../../machines/view/personal_records_screen.dart';
+import '../../rewards/view/weekly_goal_tile.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -32,6 +33,7 @@ class ProfileScreen extends StatelessWidget {
               trailing: const Icon(Icons.chevron_right),
               onTap: () => PersonalRecordsScreen.open(context),
             ),
+            const WeeklyGoalTile(),
             const Spacer(),
             // Çıkış yapınca main.dart'taki StreamBuilder giriş ekranına döner.
             FilledButton.icon(
