@@ -1,3 +1,4 @@
+import '../../gate_entry/model/gate_qr.dart';
 import '../model/machine.dart';
 
 /// Bir QR okumasının sonucu.
@@ -8,6 +9,12 @@ sealed class ScanResult {
 class ValidScan extends ScanResult {
   const ValidScan(this.machine);
   final Machine machine;
+}
+
+/// Turnike QR'ı okundu: makine detayı yerine giriş/çıkış akışı.
+class GateScan extends ScanResult {
+  const GateScan(this.gate);
+  final GateQr gate;
 }
 
 class InvalidScan extends ScanResult {
@@ -38,9 +45,16 @@ class MachineScanViewModel {
       return ValidScan(machine);
     }
 
+    final gate = GateQr.fromQr(raw);
+    if (gate != null) {
+      _isBusy = true;
+      return GateScan(gate);
+    }
+
     // Aynı geçersiz kod kısa süre içinde tekrar gelirse mesajı tekrarlama.
     final now = DateTime.now();
-    if (raw == _lastInvalid && now.difference(_lastInvalidAt) < _invalidCooldown) {
+    if (raw == _lastInvalid &&
+        now.difference(_lastInvalidAt) < _invalidCooldown) {
       return const IgnoredScan();
     }
     _lastInvalid = raw;
@@ -48,7 +62,8 @@ class MachineScanViewModel {
     return const InvalidScan();
   }
 
-  /// Detay ekranından dönünce yeni okumalara izin ver.
+  /// Detay ekranından dönünce ya da turnike işlemi bitince yeni okumalara
+  /// izin ver.
   void resume() {
     _isBusy = false;
   }
